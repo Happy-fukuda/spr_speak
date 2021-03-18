@@ -10,37 +10,43 @@ import Levenshtein as lev
 
 from spr_speak.srv import SprInformation
 from spr_speak.srv import SprInformationResponse
+import os.path
+import ../../mimi_micarray_pkg/src/respeaker_function
 
-file='/home/nao/catkin_ws/src/spr_speak/question_answer' #作成場所の指定
+file_path=os.path.expanduser('~/catkin_ws/src/voice_common_pkg/config') #作成場所の指定
 
 class RecognitionAnswer():
     def __init__(self):
         self.question_list=[]
         self.answer_list=[]
 
-        with open(file,'r') as f:
+        with open(file_path,'r') as f:
             for str in f:
                 if "q:" in str:
                     self.question_list.append(str.replace('q:', ''))
                 else:
-                    print str.replace('a:', '')
                     self.answer_list.append(str.replace('a:', ''))
-        print('server is ready')
+
+        self.respeaker_sub=respeaker()
         rospy.wait_for_service('/tts')
         rospy.wait_for_service('/stt_server')
-
         self.stt_srv=rospy.ServiceProxy('/stt_server',SpeechToText)
         rospy.Service('/spr_speak',SprInformation,self.main)
         self.tts_srv=rospy.ServiceProxy('/tts', TTS)
+        print('server is ready')
+        rospy.Service('/spr_speak',SprInformation,self.main)
         rospy.spin()
+        self.respeaker_sub=respeaker()
+        self.angle=0
 
     def select_question(self):
-        decision_number=0.6
-        decision_sub=0.0
+        decision_number = 0.6
+        decision_sub = 0.0
         question = -1
 
         while(question==-1):
             string=self.stt_srv(short_str=False)
+            self.angle = self.respeaker_sub.sound_direction()
             for i in range(len(self.question_list)):
                 decision_sub=lev.distance(string.result_str, self.question_list[i])/(max(len(string.result_str), len(self.question_list[i])) *1.00)
                 if decision_sub<decision_number:
@@ -75,7 +81,7 @@ class RecognitionAnswer():
         answer_num = self.select_question()
         self.answer_make(req.some_info,answer_num)
 
-        return SprInformationResponse(self.answer_list[answer_num])
+        return SprInformationResponse(ans_str=self.answer_list[answer_num],respeaker_angle=self.angle)
 
 
 

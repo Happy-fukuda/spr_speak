@@ -9,6 +9,6 @@ else
     export http_proxy=''
 fi
 
-source ~/catkin_ws/src/voice_reference/api/bin/activate
+source ./env/bin/activate
 
 roslaunch spr_speak spr_speak.launch
