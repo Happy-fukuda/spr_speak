@@ -8,11 +8,12 @@ from voice_common_pkg.srv import SpeechToText
 import rospy
 import Levenshtein as lev
 
-from spr_speak.srv import SprInformation
-from spr_speak.srv import SprInformationResponse
+from voice_common_pkg.srv import SprInformation
+from voice_common_pkg.srv import SprInformationResponse
 import os.path
-import ../../mimi_micarray_pkg/src/respeaker_function
-
+import sys
+sys.path.insert(0,os.path.expanduser('~')+"/catkin_ws/src/mimi_micarray_pkg/src")
+from respeaker_function import *
 file_path=os.path.expanduser('~/catkin_ws/src/voice_common_pkg/config') #作成場所の指定
 
 class RecognitionAnswer():
@@ -20,7 +21,7 @@ class RecognitionAnswer():
         self.question_list=[]
         self.answer_list=[]
 
-        with open(file_path,'r') as f:
+        with open(file_path+"question_answer",'r') as f:
             for str in f:
                 if "q:" in str:
                     self.question_list.append(str.replace('q:', ''))
