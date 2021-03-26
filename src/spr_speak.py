@@ -21,7 +21,7 @@ class RecognitionAnswer():
         self.question_list=[]
         self.answer_list=[]
 
-        with open(file_path+"question_answer",'r') as f:
+        with open(file_path+"/question_answer",'r') as f:
             for str in f:
                 if "q:" in str:
                     self.question_list.append(str.replace('q:', ''))
@@ -32,7 +32,7 @@ class RecognitionAnswer():
         rospy.wait_for_service('/tts')
         rospy.wait_for_service('/stt_server')
         self.stt_srv=rospy.ServiceProxy('/stt_server',SpeechToText)
-        rospy.Service('/spr_speak',SprInformation,self.main)
+        rospy.Service('/spr_QA',SprInformation,self.main)
         self.tts_srv=rospy.ServiceProxy('/tts', TTS)
         print('server is ready')
         rospy.Service('/spr_speak',SprInformation,self.main)
@@ -48,6 +48,7 @@ class RecognitionAnswer():
         while(question==-1):
             string=self.stt_srv(short_str=False)
             self.angle = self.respeaker_sub.sound_direction()
+            print(self.angle,type(self.angle))
             for i in range(len(self.question_list)):
                 decision_sub=lev.distance(string.result_str, self.question_list[i])/(max(len(string.result_str), len(self.question_list[i])) *1.00)
                 if decision_sub<decision_number:
@@ -89,6 +90,6 @@ class RecognitionAnswer():
 
 
 if __name__=='__main__':
-    rospy.init_node('spr_speak')
+    rospy.init_node('spr_QA')
     i=RecognitionAnswer()
     i.main()
