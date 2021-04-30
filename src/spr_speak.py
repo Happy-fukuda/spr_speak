@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from gcp_texttospeech.srv import TTS
+from voice_common_pkg.srv import TTS
 #音声認識
 from voice_common_pkg.srv import SpeechToText
 
@@ -32,7 +32,7 @@ class RecognitionAnswer():
         rospy.wait_for_service('/tts')
         rospy.wait_for_service('/stt_server')
         self.stt_srv=rospy.ServiceProxy('/stt_server',SpeechToText)
-        rospy.Service('/spr_QA',SprInformation,self.main)
+        #rospy.Service('/spr_QA',SprInformation,self.main)
         self.tts_srv=rospy.ServiceProxy('/tts', TTS)
         print('server is ready')
         rospy.Service('/spr_speak',SprInformation,self.main)
